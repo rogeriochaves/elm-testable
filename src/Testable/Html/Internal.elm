@@ -2,7 +2,9 @@ module Testable.Html.Internal exposing (..)
 
 import Html as PlatformHtml
 import Html.Events as PlatformEvents
+import Html.Attributes as PlatformAttributes
 import Json.Decode as Json
+import Json.Encode
 import Testable.Html.Selector exposing (Selector(..))
 
 
@@ -12,7 +14,10 @@ type Node msg
 
 
 type Attribute msg
-    = On String (Json.Decoder msg)
+    = Attribute String String
+    | Property String Json.Encode.Value
+    | Style (List ( String, String ))
+    | On String (Json.Decoder msg)
     | OnWithOptions String Options (Json.Decoder msg)
 
 
@@ -35,6 +40,15 @@ toPlatformHtml node =
 toPlatformAttribute : Attribute msg -> PlatformHtml.Attribute msg
 toPlatformAttribute attribute =
     case attribute of
+        Attribute name value ->
+            PlatformAttributes.attribute name value
+
+        Property name value ->
+            PlatformAttributes.property name value
+
+        Style rules ->
+            PlatformAttributes.style rules
+
         On event decoder ->
             PlatformEvents.on event decoder
 
@@ -110,6 +124,9 @@ isEventWithName expectedName attribute =
         OnWithOptions eventName _ _ ->
             eventName == expectedName
 
+        _ ->
+            False
+
 
 getMsg : String -> Attribute msg -> Result String msg
 getMsg event attribute =
@@ -119,6 +136,9 @@ getMsg event attribute =
 
         OnWithOptions _ _ decoder ->
             Json.decodeString decoder event
+
+        _ ->
+            Err "This is not an event attribute"
 
 
 triggerEvent : Node msg -> String -> String -> Result String msg
