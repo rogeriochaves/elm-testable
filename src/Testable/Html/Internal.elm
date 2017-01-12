@@ -13,6 +13,13 @@ type Node msg
 
 type Attribute msg
     = On String (Json.Decoder msg)
+    | OnWithOptions String Options (Json.Decoder msg)
+
+
+type alias Options =
+    { stopPropagation : Bool
+    , preventDefault : Bool
+    }
 
 
 toPlatformHtml : Node msg -> PlatformHtml.Html msg
@@ -30,6 +37,9 @@ toPlatformAttribute attribute =
     case attribute of
         On event decoder ->
             PlatformEvents.on event decoder
+
+        OnWithOptions event options decoder ->
+            PlatformEvents.onWithOptions event options decoder
 
 
 nodeText : Node msg -> String
@@ -97,11 +107,17 @@ isEventWithName expectedName attribute =
         On eventName _ ->
             eventName == expectedName
 
+        OnWithOptions eventName _ _ ->
+            eventName == expectedName
+
 
 getMsg : String -> Attribute msg -> Result String msg
 getMsg event attribute =
     case attribute of
         On _ decoder ->
+            Json.decodeString decoder event
+
+        OnWithOptions _ _ decoder ->
             Json.decodeString decoder event
 
 
