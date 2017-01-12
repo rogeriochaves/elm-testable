@@ -3,6 +3,7 @@ module Testable.Html.Internal exposing (..)
 import Html as PlatformHtml
 import Html.Events as PlatformEvents
 import Html.Attributes as PlatformAttributes
+import Html.Keyed as PlatformKeyed
 import Json.Decode as Json
 import Json.Encode
 import Testable.Html.Selector exposing (Selector(..))
@@ -10,6 +11,7 @@ import Testable.Html.Selector exposing (Selector(..))
 
 type Node msg
     = Node String (List (Attribute msg)) (List (Node msg))
+    | KeyedNode String (List (Attribute msg)) (List ( String, Node msg ))
     | Text String
 
 
@@ -32,6 +34,9 @@ toPlatformHtml node =
     case node of
         Node type_ attributes children ->
             PlatformHtml.node type_ (List.map toPlatformAttribute attributes) (List.map toPlatformHtml children)
+
+        KeyedNode type_ attributes children ->
+            PlatformKeyed.node type_ (List.map toPlatformAttribute attributes) (List.map (\( key, child ) -> ( key, toPlatformHtml child )) children)
 
         Text value ->
             PlatformHtml.text value
@@ -64,20 +69,32 @@ nodeText node =
                 |> List.map (nodeText)
                 |> String.join ""
 
+        KeyedNode _ _ children ->
+            children
+                |> List.map (Tuple.second >> nodeText)
+                |> String.join ""
+
         Text nodeText ->
             nodeText
 
 
 nodeMatchesSelector : Node msg -> Selector -> Bool
 nodeMatchesSelector node selector =
-    case node of
-        Node type_ attributes children ->
+    let
+        checkSelector type_ =
             case selector of
                 Tag expectedType ->
                     type_ == expectedType
+    in
+        case node of
+            Node type_ attributes children ->
+                checkSelector type_
 
-        Text _ ->
-            False
+            KeyedNode type_ attributes children ->
+                checkSelector type_
+
+            Text _ ->
+                False
 
 
 isJust : Maybe a -> Bool
@@ -92,27 +109,33 @@ isJust maybe =
 
 findNode : List Selector -> Node msg -> Maybe (Node msg)
 findNode query node =
-    case node of
-        Node type_ attributes children ->
-            let
-                nodeMatches =
-                    List.map (nodeMatchesSelector node) query
-                        |> (::) True
-                        |> List.all identity
-            in
-                if nodeMatches then
-                    Just node
-                else
+    let
+        nodeMatches =
+            List.map (nodeMatchesSelector node) query
+                |> (::) True
+                |> List.all identity
+    in
+        if nodeMatches then
+            Just node
+        else
+            case node of
+                Node type_ attributes children ->
                     List.map (findNode query) children
                         |> List.filter isJust
                         |> List.head
                         |> Maybe.withDefault Nothing
 
-        Text _ ->
-            if List.isEmpty query then
-                Just node
-            else
-                Nothing
+                KeyedNode type_ attributes children ->
+                    List.map (Tuple.second >> findNode query) children
+                        |> List.filter isJust
+                        |> List.head
+                        |> Maybe.withDefault Nothing
+
+                Text _ ->
+                    if List.isEmpty query then
+                        Just node
+                    else
+                        Nothing
 
 
 isEventWithName : String -> Attribute msg -> Bool
@@ -143,12 +166,19 @@ getMsg event attribute =
 
 triggerEvent : Node msg -> String -> String -> Result String msg
 triggerEvent node name event =
-    case node of
-        Node _ attributes _ ->
+    let
+        findAttributeAndTrigger attributes =
             List.filter (isEventWithName name) attributes
                 |> List.head
                 |> Maybe.map (getMsg event)
                 |> Maybe.withDefault (Err ("Could not find event " ++ name ++ " to be triggered on node " ++ toString node))
+    in
+        case node of
+            Node _ attributes _ ->
+                findAttributeAndTrigger attributes
 
-        Text _ ->
-            Err "Cannot trigger events on text nodes"
+            KeyedNode _ attributes _ ->
+                findAttributeAndTrigger attributes
+
+            Text _ ->
+                Err "Cannot trigger events on text nodes"
