@@ -24,6 +24,7 @@ type Attribute msg
 type Selector
     = Tag String
     | Attribute String String
+    | Class String
 
 
 type alias Options =
@@ -88,6 +89,21 @@ attributeMatches expectedName expectedValue attribute =
             False
 
 
+classMatches : String -> Attribute msg -> Bool
+classMatches expectedValue attribute =
+    case attribute of
+        Property name value ->
+            if (name == "className") then
+                Json.decodeValue Json.string value
+                    |> Result.map (String.split " " >> List.any ((==) expectedValue))
+                    |> Result.withDefault False
+            else
+                False
+
+        _ ->
+            False
+
+
 nodeMatchesSelector : Node msg -> Selector -> Bool
 nodeMatchesSelector node selector =
     let
@@ -98,6 +114,9 @@ nodeMatchesSelector node selector =
 
                 Attribute name value ->
                     List.any (attributeMatches name value) attributes
+
+                Class value ->
+                    List.any (classMatches value) attributes
     in
         case node of
             Node type_ attributes children ->

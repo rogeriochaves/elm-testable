@@ -1,10 +1,10 @@
-module Testable.Html.Selector exposing (tag, attribute, id)
+module Testable.Html.Selector exposing (tag, attribute, id, class)
 
 {-|
 A selector is used to find html nodes when testing
 
 # Selectors
-@docs tag, attribute, id
+@docs tag, attribute, id, class
 -}
 
 import Testable.Html.Internal exposing (Selector(..))
@@ -29,3 +29,10 @@ attribute =
 id : String -> Selector
 id =
     Attribute "id"
+
+
+{-| Find elements by class
+-}
+class : String -> Selector
+class =
+    Class

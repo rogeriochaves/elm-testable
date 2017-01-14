@@ -33,7 +33,12 @@ counterComponent =
 
                 Dec ->
                     ( model - 1, Testable.Cmd.none )
-    , view = \model -> div [] [ button [ Testable.Html.Attributes.id "btn-inc", onClick Inc ] [ text (toString model) ] ]
+    , view =
+        \model ->
+            div []
+                [ button [ Testable.Html.Attributes.id "btn-inc", onClick Inc ] []
+                , div [ Testable.Html.Attributes.class "counter value" ] [ text (toString model) ]
+                ]
     }
 
 
@@ -242,6 +247,6 @@ all =
                     |> TestContext.find [ id "btn-inc" ]
                     |> TestContext.trigger "click" "{}"
                     |> TestContext.trigger "click" "{}"
-                    |> TestContext.find [ tag "div" ]
+                    |> TestContext.find [ class "counter" ]
                     |> TestContext.assertText (Expect.equal "2")
         ]
