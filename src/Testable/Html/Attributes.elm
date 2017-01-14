@@ -269,7 +269,7 @@ Read more about the difference between properties and attributes [here][].
 -}
 attribute : String -> String -> Attribute msg
 attribute =
-    Attribute
+    stringProperty
 
 
 {-| Transform the messages produced by an `Attribute`.
@@ -277,9 +277,6 @@ attribute =
 map : (a -> msg) -> Attribute a -> Attribute msg
 map f attribute =
     case attribute of
-        Attribute name value ->
-            Attribute name value
-
         Property name value ->
             Property name value
 

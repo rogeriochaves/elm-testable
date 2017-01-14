@@ -22,7 +22,6 @@ import Testable.Cmd
 import Testable.EffectsLog as EffectsLog exposing (EffectsLog, containsCmd)
 import Testable.Http as Http
 import Testable.Html.Internal as Html
-import Testable.Html.Selector as HtmlSelector
 import Time exposing (Time)
 import Platform.Cmd
 
@@ -47,7 +46,7 @@ type TestContext msg model
                 { model : model
                 , effectsLog : EffectsLog msg
                 }
-        , query : List HtmlSelector.Selector
+        , query : List Html.Selector
         }
 
 
@@ -241,7 +240,7 @@ assertCalled expectedCmd (TestContext context) =
 
 {-| Finds an html node in the view
 -}
-find : List HtmlSelector.Selector -> TestContext msg model -> TestContext msg model
+find : List Html.Selector -> TestContext msg model -> TestContext msg model
 find query (TestContext context) =
     TestContext { context | query = query }
 
@@ -261,8 +260,7 @@ assertText expectation (TestContext context) =
             context.component.view model
                 |> Html.findNode context.query
                 |> Maybe.map (Html.nodeText >> expectation)
-                |> Maybe.withDefault
-                    (Expect.fail <| "Could not find and element with the query " ++ toString context.query)
+                |> Maybe.withDefault (Expect.fail <| "Could not find and element with the query " ++ toString context.query)
 
 
 {-| Trigger node events
@@ -288,5 +286,4 @@ trigger name event (TestContext context) =
                             Err err ->
                                 (TestContext { context | state = Err [ err ] })
                     )
-                |> Maybe.withDefault
-                    (TestContext { context | state = Err [ "Could not find and element with the query " ++ toString context.query ] })
+                |> Maybe.withDefault (TestContext { context | state = Err [ "Could not find and element with the query " ++ toString context.query ] })

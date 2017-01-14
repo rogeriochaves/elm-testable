@@ -7,6 +7,7 @@ import Testable.Cmd
 import Testable.Http as Http exposing (defaultSettings)
 import Testable.Html exposing (..)
 import Testable.Html.Events exposing (..)
+import Testable.Html.Attributes
 import Test exposing (..)
 import Testable.Html.Selector exposing (..)
 import Testable.Task as Task
@@ -32,7 +33,7 @@ counterComponent =
 
                 Dec ->
                     ( model - 1, Testable.Cmd.none )
-    , view = \model -> div [] [ button [ onClick Inc ] [ text (toString model) ] ]
+    , view = \model -> div [] [ button [ Testable.Html.Attributes.id "btn-inc", onClick Inc ] [ text (toString model) ] ]
     }
 
 
@@ -67,40 +68,40 @@ port outgoingPort : String -> Platform.Cmd.Cmd msg
 all : Test
 all =
     describe "Testable"
-        [ test "initialized with initial model" <|
-            \() ->
+        [ test "initialized with initial model"
+            <| \() ->
                 counterComponent
                     |> TestContext.startForTest
                     |> TestContext.assertCurrentModel 0
-        , test "sending an msg" <|
-            \() ->
+        , test "sending an msg"
+            <| \() ->
                 counterComponent
                     |> TestContext.startForTest
                     |> TestContext.update Inc
                     |> TestContext.update Inc
                     |> TestContext.assertCurrentModel 2
-        , test "records initial effects" <|
-            \() ->
+        , test "records initial effects"
+            <| \() ->
                 loadingComponent
                     |> TestContext.startForTest
                     |> TestContext.assertHttpRequest (Http.getRequest "https://example.com/")
-        , test "records initial effects" <|
-            \() ->
+        , test "records initial effects"
+            <| \() ->
                 loadingComponent
                     |> TestContext.startForTest
                     |> TestContext.resolveHttpRequest (Http.getRequest "https://example.com/")
                         (Http.ok "myData-1")
                     |> TestContext.assertCurrentModel (Just "myData-1")
-        , test "stubbing an unmatched effect should produce an error" <|
-            \() ->
+        , test "stubbing an unmatched effect should produce an error"
+            <| \() ->
                 loadingComponent
                     |> TestContext.startForTest
                     |> TestContext.resolveHttpRequest (Http.getRequest "https://badwebsite.com/")
                         (Http.ok "_")
                     |> TestContext.currentModel
                     |> Expect.equal (Err [ "No pending HTTP request: { method = \"GET\", headers = [], body = EmptyBody, timeout = Nothing, url = \"https://badwebsite.com/\", withCredentials = False }" ])
-        , test "effects should be removed after they are run" <|
-            \() ->
+        , test "effects should be removed after they are run"
+            <| \() ->
                 loadingComponent
                     |> TestContext.startForTest
                     |> TestContext.resolveHttpRequest (Http.getRequest "https://example.com/")
@@ -109,8 +110,8 @@ all =
                         (Http.ok "myData-2")
                     |> TestContext.currentModel
                     |> Expect.equal (Err [ "No pending HTTP request: { method = \"GET\", headers = [], body = EmptyBody, timeout = Nothing, url = \"https://example.com/\", withCredentials = False }" ])
-        , test "multiple initial effects should be resolvable" <|
-            \() ->
+        , test "multiple initial effects should be resolvable"
+            <| \() ->
                 { init =
                     ( Nothing
                     , Testable.Cmd.batch
@@ -127,8 +128,8 @@ all =
                     |> TestContext.resolveHttpRequest (Http.getRequest "https://secondexample.com/")
                         (Http.ok "myData-2")
                     |> TestContext.assertCurrentModel (Just <| Ok "myData-2")
-        , test "Http.post effect" <|
-            \() ->
+        , test "Http.post effect"
+            <| \() ->
                 { init =
                     ( Ok 0
                     , Http.post "https://a" (Http.stringBody "text/plain" "requestBody") Decode.float
@@ -147,32 +148,32 @@ all =
                         }
                         (Http.ok "99.1")
                     |> TestContext.assertCurrentModel (Ok 99.1)
-        , test "Task.succeed" <|
-            \() ->
+        , test "Task.succeed"
+            <| \() ->
                 { init = ( "waiting", Task.succeed "ready" |> Task.perform identity )
                 , update = \value model -> ( value, Testable.Cmd.none )
                 , view = \model -> text ""
                 }
                     |> TestContext.startForTest
                     |> TestContext.assertCurrentModel "ready"
-        , test "Task.fail" <|
-            \() ->
+        , test "Task.fail"
+            <| \() ->
                 { init = ( Ok "waiting", Task.fail "failed" |> Task.attempt identity )
                 , update = \value model -> ( value, Testable.Cmd.none )
                 , view = \model -> text ""
                 }
                     |> TestContext.startForTest
                     |> TestContext.assertCurrentModel (Err "failed")
-        , test "Task.andThen" <|
-            \() ->
+        , test "Task.andThen"
+            <| \() ->
                 { init = ( 0, Task.succeed 100 |> Task.andThen ((+) 1 >> Task.succeed) |> Task.perform identity )
                 , update = \value model -> ( value, Testable.Cmd.none )
                 , view = \model -> text ""
                 }
                     |> TestContext.startForTest
                     |> TestContext.assertCurrentModel 101
-        , test "Process.sleep" <|
-            \() ->
+        , test "Process.sleep"
+            <| \() ->
                 { init =
                     ( "waiting"
                     , Process.sleep (5 * Time.second)
@@ -185,8 +186,8 @@ all =
                     |> TestContext.startForTest
                     |> TestContext.advanceTime (4 * Time.second)
                     |> TestContext.assertCurrentModel "waiting"
-        , test "Process.sleep" <|
-            \() ->
+        , test "Process.sleep"
+            <| \() ->
                 { init =
                     ( "waiting"
                     , Process.sleep (5 * Time.second)
@@ -199,8 +200,8 @@ all =
                     |> TestContext.startForTest
                     |> TestContext.advanceTime (5 * Time.second)
                     |> TestContext.assertCurrentModel "5 seconds passed"
-        , test "sending a value through a port" <|
-            \() ->
+        , test "sending a value through a port"
+            <| \() ->
                 { init =
                     ( Nothing
                     , Testable.Cmd.none
@@ -211,8 +212,8 @@ all =
                     |> TestContext.startForTest
                     |> TestContext.update Inc
                     |> TestContext.assertCalled (outgoingPort "foo")
-        , test "asserting text" <|
-            \() ->
+        , test "asserting text"
+            <| \() ->
                 { init =
                     ( Nothing
                     , Testable.Cmd.none
@@ -222,8 +223,8 @@ all =
                 }
                     |> TestContext.startForTest
                     |> TestContext.assertText (Expect.equal "foo")
-        , test "querying views" <|
-            \() ->
+        , test "querying views"
+            <| \() ->
                 { init =
                     ( Nothing
                     , Testable.Cmd.none
@@ -234,11 +235,11 @@ all =
                     |> TestContext.startForTest
                     |> TestContext.find [ tag "input" ]
                     |> TestContext.assertText (Expect.equal "bar")
-        , test "querying views" <|
-            \() ->
+        , test "querying views"
+            <| \() ->
                 counterComponent
                     |> TestContext.startForTest
-                    |> TestContext.find [ tag "button" ]
+                    |> TestContext.find [ id "btn-inc" ]
                     |> TestContext.trigger "click" "{}"
                     |> TestContext.trigger "click" "{}"
                     |> TestContext.find [ tag "div" ]

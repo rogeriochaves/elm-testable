@@ -15,8 +15,7 @@ type Node msg
 
 
 type Attribute msg
-    = Attribute String String
-    | Property String Json.Encode.Value
+    = Property String Json.Encode.Value
     | Style (List ( String, String ))
     | On String (Json.Decoder msg)
     | OnWithOptions String Options (Json.Decoder msg)
@@ -24,6 +23,7 @@ type Attribute msg
 
 type Selector
     = Tag String
+    | Attribute String String
 
 
 type alias Options =
@@ -48,9 +48,6 @@ toPlatformHtml node =
 toPlatformAttribute : Attribute msg -> PlatformHtml.Attribute msg
 toPlatformAttribute attribute =
     case attribute of
-        Attribute name value ->
-            PlatformAttributes.attribute name value
-
         Property name value ->
             PlatformAttributes.property name value
 
@@ -81,20 +78,33 @@ nodeText node =
             nodeText
 
 
+attributeMatches : String -> String -> Attribute msg -> Bool
+attributeMatches expectedName expectedValue attribute =
+    case attribute of
+        Property name value ->
+            (expectedName == name) && (Json.Encode.string expectedValue == value)
+
+        _ ->
+            False
+
+
 nodeMatchesSelector : Node msg -> Selector -> Bool
 nodeMatchesSelector node selector =
     let
-        checkSelector type_ =
+        checkSelector type_ attributes =
             case selector of
                 Tag expectedType ->
                     type_ == expectedType
+
+                Attribute name value ->
+                    List.any (attributeMatches name value) attributes
     in
         case node of
             Node type_ attributes children ->
-                checkSelector type_
+                checkSelector type_ attributes
 
             KeyedNode type_ attributes children ->
-                checkSelector type_
+                checkSelector type_ attributes
 
             Text _ ->
                 False
