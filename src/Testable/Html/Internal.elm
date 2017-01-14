@@ -27,6 +27,11 @@ type Selector
     | Class String
 
 
+type Query
+    = Single (List Selector)
+    | Multiple (List Selector)
+
+
 type alias Options =
     { stopPropagation : Bool
     , preventDefault : Bool
@@ -139,35 +144,45 @@ isJust maybe =
             False
 
 
-findNode : List Selector -> Node msg -> Maybe (Node msg)
-findNode query node =
+findNodes : Query -> Node msg -> List (Node msg)
+findNodes query node =
+    case query of
+        Single selectors ->
+            findNodesForSelectors selectors node
+                |> List.take 1
+
+        Multiple selectors ->
+            findNodesForSelectors selectors node
+
+
+findNodesForSelectors : List Selector -> Node msg -> List (Node msg)
+findNodesForSelectors selectors node =
     let
         nodeMatches =
-            List.map (nodeMatchesSelector node) query
+            List.map (nodeMatchesSelector node) selectors
                 |> (::) True
                 |> List.all identity
+
+        currentNodeMatches =
+            if nodeMatches then
+                [ node ]
+            else
+                []
     in
-        if nodeMatches then
-            Just node
-        else
-            case node of
-                Node type_ attributes children ->
-                    List.map (findNode query) children
-                        |> List.filter isJust
-                        |> List.head
-                        |> Maybe.withDefault Nothing
+        case node of
+            Node type_ attributes children ->
+                List.concatMap (findNodesForSelectors selectors) children
+                    |> List.append currentNodeMatches
 
-                KeyedNode type_ attributes children ->
-                    List.map (Tuple.second >> findNode query) children
-                        |> List.filter isJust
-                        |> List.head
-                        |> Maybe.withDefault Nothing
+            KeyedNode type_ attributes children ->
+                List.concatMap (Tuple.second >> findNodesForSelectors selectors) children
+                    |> List.append currentNodeMatches
 
-                Text _ ->
-                    if List.isEmpty query then
-                        Just node
-                    else
-                        Nothing
+            Text _ ->
+                if List.isEmpty selectors then
+                    [ node ]
+                else
+                    []
 
 
 isEventWithName : String -> Attribute msg -> Bool

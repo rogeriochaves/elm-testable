@@ -1,4 +1,4 @@
-module Testable.TestContext exposing (Component, TestContext, startForTest, update, currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, resolveHttpRequest, advanceTime, assertCalled, find, assertText, trigger)
+module Testable.TestContext exposing (Component, TestContext, startForTest, update, currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, resolveHttpRequest, advanceTime, assertCalled, find, findAll, trigger, assertText, assertNodeCount)
 
 {-| A `TestContext` allows you to manage the lifecycle of an Elm component that
 uses `Testable.Effects`.  Using `TestContext`, you can write tests that exercise
@@ -10,7 +10,7 @@ the entire lifecycle of your component.
 @docs currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, assertCalled
 
 # Html Matchers
-@docs find, assertText, trigger
+@docs find, findAll, trigger, assertText, assertNodeCount
 
 # Simulating Effects
 @docs resolveHttpRequest, advanceTime
@@ -46,7 +46,7 @@ type TestContext msg model
                 { model : model
                 , effectsLog : EffectsLog msg
                 }
-        , query : List Html.Selector
+        , query : Html.Query
         }
 
 
@@ -65,7 +65,7 @@ startForTest component =
                     { model = initialState
                     , effectsLog = EffectsLog.empty
                     }
-            , query = []
+            , query = Html.Multiple []
             }
             |> applyEffects initialEffects
 
@@ -238,52 +238,93 @@ assertCalled expectedCmd (TestContext context) =
                 Expect.equal [ expectedCmd ] (EffectsLog.wrappedCmds effectsLog)
 
 
-{-| Finds an html node in the view
+{-| Finds a single html node in the view
 -}
 find : List Html.Selector -> TestContext msg model -> TestContext msg model
 find query (TestContext context) =
-    TestContext { context | query = query }
+    TestContext { context | query = (Html.Single query) }
+
+
+{-| Finds all html nodes in the view
+-}
+findAll : List Html.Selector -> TestContext msg model -> TestContext msg model
+findAll query (TestContext context) =
+    TestContext { context | query = (Html.Multiple query) }
+
+
+findNodesForContext : TestContext msg model -> Result (List String) (List (Html.Node msg))
+findNodesForContext (TestContext context) =
+    case context.state of
+        Err errors ->
+            Err errors
+
+        Ok { model } ->
+            context.component.view model
+                |> Html.findNodes context.query
+                |> Ok
 
 
 {-| Write an assetion based on the node text
 -}
 assertText : (String -> Expectation) -> TestContext msg model -> Expectation
 assertText expectation (TestContext context) =
-    case context.state of
+    case findNodesForContext (TestContext context) of
         Err errors ->
             Expect.fail
                 ("Tried to get text from the view, but TestContext had previous errors:"
                     ++ String.join "\n    " ("" :: errors)
                 )
 
-        Ok { model } ->
-            context.component.view model
-                |> Html.findNode context.query
-                |> Maybe.map (Html.nodeText >> expectation)
-                |> Maybe.withDefault (Expect.fail <| "Could not find and element with the query " ++ toString context.query)
+        Ok nodesFound ->
+            if List.isEmpty nodesFound then
+                Expect.fail <| "Could not find any element with the query " ++ toString context.query
+            else
+                nodesFound
+                    |> List.map (Html.nodeText)
+                    |> String.join ""
+                    |> expectation
+
+
+{-| Write an assetion based on the amount of nodes found
+-}
+assertNodeCount : (Int -> Expectation) -> TestContext msg model -> Expectation
+assertNodeCount expectation (TestContext context) =
+    case findNodesForContext (TestContext context) of
+        Err errors ->
+            Expect.fail
+                ("Tried to get text from the view, but TestContext had previous errors:"
+                    ++ String.join "\n    " ("" :: errors)
+                )
+
+        Ok nodesFound ->
+            nodesFound
+                |> List.length
+                |> expectation
 
 
 {-| Trigger node events
 -}
 trigger : String -> String -> TestContext msg model -> TestContext msg model
 trigger name event (TestContext context) =
-    case context.state of
+    case findNodesForContext (TestContext context) of
         Err errors ->
             TestContext
                 { context
                     | state = Err (("trigger " ++ name ++ " " ++ event ++ " applied to an TestContext with previous errors") :: errors)
                 }
 
-        Ok { model } ->
-            context.component.view model
-                |> Html.findNode context.query
-                |> Maybe.map
-                    (\node ->
+        Ok nodesFound ->
+            if List.length nodesFound > 1 then
+                TestContext { context | state = Err [ "Found more than one element to trigger event with the query " ++ toString context.query ++ " probably you didn't wanted to trigger events on all nodes, use find instead of findAll" ] }
+            else
+                case List.head nodesFound of
+                    Just node ->
                         case (Html.triggerEvent node name event) of
                             Ok msg ->
                                 update msg (TestContext context)
 
                             Err err ->
                                 (TestContext { context | state = Err [ err ] })
-                    )
-                |> Maybe.withDefault (TestContext { context | state = Err [ "Could not find and element with the query " ++ toString context.query ] })
+
+                    Nothing ->
+                        TestContext { context | state = Err [ "Could not find and element with the query " ++ toString context.query ] }

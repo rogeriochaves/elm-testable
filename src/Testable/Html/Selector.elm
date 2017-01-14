@@ -31,7 +31,7 @@ id =
     Attribute "id"
 
 
-{-| Find elements by class
+{-| Finds elements that have the given class (and possibly others as well).
 -}
 class : String -> Selector
 class =

@@ -240,7 +240,7 @@ all =
                     |> TestContext.startForTest
                     |> TestContext.find [ tag "input" ]
                     |> TestContext.assertText (Expect.equal "bar")
-        , test "querying views"
+        , test "triggering events"
             <| \() ->
                 counterComponent
                     |> TestContext.startForTest
@@ -249,4 +249,16 @@ all =
                     |> TestContext.trigger "click" "{}"
                     |> TestContext.find [ class "counter" ]
                     |> TestContext.assertText (Expect.equal "2")
+        , test "asserting count with findAll"
+            <| \() ->
+                counterComponent
+                    |> TestContext.startForTest
+                    |> TestContext.findAll [ tag "div" ]
+                    |> TestContext.assertNodeCount (Expect.equal 2)
+        , test "asserting count with find"
+            <| \() ->
+                counterComponent
+                    |> TestContext.startForTest
+                    |> TestContext.find [ tag "div" ]
+                    |> TestContext.assertNodeCount (Expect.equal 1)
         ]
