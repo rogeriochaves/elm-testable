@@ -22,6 +22,32 @@ module Testable.Html.Events
         , keyCode
         )
 
+{-|
+It is often helpful to create an [Union Type][] so you can have many different kinds
+of events as seen in the [TodoMVC][] example.
+
+[Union Type]: http://elm-lang.org/learn/Union-Types.elm
+[TodoMVC]: https://github.com/evancz/elm-todomvc/blob/master/Todo.elm
+
+# Mouse Helpers
+@docs onClick, onDoubleClick,
+      onMouseDown, onMouseUp,
+      onMouseEnter, onMouseLeave,
+      onMouseOver, onMouseOut
+
+# Form Helpers
+@docs onInput, onCheck, onSubmit
+
+# Focus Helpers
+@docs onBlur, onFocus
+
+# Custom Event Handlers
+@docs on, onWithOptions, Options, defaultOptions
+
+# Custom Decoders
+@docs targetValue, targetChecked, keyCode
+-}
+
 import Testable.Html.Internal exposing (Attribute(..))
 import Json.Decode as Json
 

@@ -11,7 +11,12 @@
         "Testable.TestContext",
         "Testable.Cmd",
         "Testable.Http",
-        "Testable.Task"
+        "Testable.Task",
+        "Testable.Html",
+        "Testable.Html.Attributes",
+        "Testable.Html.Events",
+        "Testable.Html.Keyed",
+        "Testable.Html.Selector"
     ],
     "dependencies": {
         "elm-community/elm-test": "3.1.0 <= v < 4.0.0",

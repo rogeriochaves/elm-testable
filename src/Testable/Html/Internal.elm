@@ -6,7 +6,6 @@ import Html.Attributes as PlatformAttributes
 import Html.Keyed as PlatformKeyed
 import Json.Decode as Json
 import Json.Encode
-import Testable.Html.Selector exposing (Selector(..))
 
 
 type Node msg
@@ -21,6 +20,10 @@ type Attribute msg
     | Style (List ( String, String ))
     | On String (Json.Decoder msg)
     | OnWithOptions String Options (Json.Decoder msg)
+
+
+type Selector
+    = Tag String
 
 
 type alias Options =
