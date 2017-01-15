@@ -95,6 +95,42 @@ attributeMatches expectedName expectedValue attribute =
             False
 
 
+attributeValueByName : String -> Node msg -> Result String String
+attributeValueByName attributeName node =
+    let
+        getValue attribute =
+            case attribute of
+                Property _ value ->
+                    Json.decodeValue Json.string value
+
+                _ ->
+                    Err ("Error decoding attribute " ++ attributeName ++ " on node " ++ (toString node))
+
+        findByName attribute =
+            case attribute of
+                Property name _ ->
+                    (attributeName == name)
+
+                _ ->
+                    False
+
+        findAttribute attributes =
+            List.filter findByName attributes
+                |> List.head
+                |> Maybe.map getValue
+                |> Maybe.withDefault (Err ("Could not find attribute named " ++ attributeName ++ " on node " ++ (toString node)))
+    in
+        case node of
+            Node _ attributes _ ->
+                findAttribute attributes
+
+            KeyedNode _ attributes _ ->
+                findAttribute attributes
+
+            Text _ ->
+                Err ("Tried to get value of " ++ attributeName ++ " from a text node, which has no attributes")
+
+
 classMatches : String -> Attribute msg -> Bool
 classMatches expectedValue attribute =
     case attribute of

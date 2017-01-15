@@ -1,4 +1,4 @@
-module Testable.TestContext exposing (Component, TestContext, startForTest, update, currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, resolveHttpRequest, advanceTime, assertCalled, find, thenFind, findAll, thenFindAll, trigger, assertText, assertNodeCount, assertPresent)
+module Testable.TestContext exposing (Component, TestContext, startForTest, update, currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, resolveHttpRequest, advanceTime, assertCalled, find, thenFind, findAll, thenFindAll, trigger, assertText, assertNodeCount, assertPresent, assertAttribute)
 
 {-| A `TestContext` allows you to manage the lifecycle of an Elm component that
 uses `Testable.Effects`.  Using `TestContext`, you can write tests that exercise
@@ -10,7 +10,7 @@ the entire lifecycle of your component.
 @docs currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, assertCalled
 
 # Html Matchers
-@docs find, thenFind, findAll, thenFindAll, trigger, assertText, assertNodeCount, assertPresent
+@docs find, thenFind, findAll, thenFindAll, trigger, assertText, assertNodeCount, assertPresent, assertAttribute
 
 # Simulating Effects
 @docs resolveHttpRequest, advanceTime
@@ -314,6 +314,34 @@ assertNodeCount expectation (TestContext context) =
             nodesFound
                 |> List.length
                 |> expectation
+
+
+{-| Write an assetion based on the node text
+-}
+assertAttribute : String -> (String -> Expectation) -> TestContext msg model -> Expectation
+assertAttribute attributeName expectation (TestContext context) =
+    case findNodesForContext (TestContext context) of
+        Err errors ->
+            Expect.fail
+                ("Tried to get text from the view, but TestContext had previous errors:"
+                    ++ String.join "\n    " ("" :: errors)
+                )
+
+        Ok nodesFound ->
+            if List.length nodesFound > 1 then
+                Expect.fail <| "Found more than one element to assert attribute with the query " ++ toString context.query
+            else
+                case List.head nodesFound of
+                    Just node ->
+                        case Html.attributeValueByName attributeName node of
+                            Ok value ->
+                                expectation value
+
+                            Err error ->
+                                Expect.fail error
+
+                    Nothing ->
+                        Expect.fail <| "Could not find and element with the query " ++ toString context.query ++ " probably you didn't wanted to assert all nodes, use find instead of findAll"
 
 
 {-| Assert that some node was found with the specified query

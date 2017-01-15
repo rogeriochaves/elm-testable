@@ -281,4 +281,11 @@ all =
                     |> find [ tag "div" ]
                     |> thenFind [ tag "div" ]
                     |> assertText (Expect.equal "0")
+        , test "assert attribute"
+            <| \() ->
+                counterComponent
+                    |> startForTest
+                    |> find [ tag "div" ]
+                    |> thenFind [ tag "div" ]
+                    |> assertAttribute "className" (Expect.equal "counter value")
         ]
