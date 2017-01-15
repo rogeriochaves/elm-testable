@@ -24,12 +24,10 @@ Here is the diff of converting `RandomGif.elm` into a testable component:
 
 ```diff
 diff --git a/examples/RandomGif.elm b/examples/RandomGif.elm
-index 8f7d14b..1ae0750 100644
+index 5ffd92e..85374a7 100644
 --- a/examples/RandomGif.elm
 +++ b/examples/RandomGif.elm
-@@ -1,20 +1,22 @@
--module Main exposing (..)
-+module RandomGif exposing (..)
+@@ -2,19 +2,21 @@ module RandomGif exposing (..)
 
  --- From example 5 of the Elm Architecture Tutorial https://github.com/evancz/elm-architecture-tutorial/blob/master/examples/05-http.elm
 
@@ -37,7 +35,7 @@ index 8f7d14b..1ae0750 100644
 -import Html.Attributes exposing (..)
 -import Html.Events exposing (..)
 -import Http
-+import Testable.Html exposing (..)
++import Testable.Html as Html exposing (..)
 +import Testable.Html.Attributes exposing (..)
 +import Testable.Html.Events exposing (..)
 +import Testable.Http as Http
@@ -48,11 +46,10 @@ index 8f7d14b..1ae0750 100644
 
  main : Program Never Model Msg
  main =
--    Html.program
+     Html.program
 -        { init = init "cats"
 -        , view = view
 -        , update = update
-+    Testable.Html.program
 +        { init = Testable.init (init "cats")
 +        , view = Testable.view view
 +        , update = Testable.update update
@@ -146,7 +143,7 @@ You can also test that an outgoing port was called, by wrapping your ports with 
 
 ```diff
 diff --git a/examples/Spelling.elm b/examples/Spelling.elm
-index 7ae91ce..a57f979 100644
+index 7ae91ce..d8c335e 100644
 --- a/examples/Spelling.elm
 +++ b/examples/Spelling.elm
 @@ -2,18 +2,20 @@ port module Spelling exposing (..)
@@ -156,7 +153,7 @@ index 7ae91ce..a57f979 100644
 -import Html exposing (..)
 -import Html.Attributes exposing (..)
 -import Html.Events exposing (..)
-+import Testable.Html exposing (..)
++import Testable.Html as Html exposing (..)
 +import Testable.Html.Events exposing (..)
 +import Testable.Html.Attributes exposing (..)
  import String
@@ -166,11 +163,10 @@ index 7ae91ce..a57f979 100644
 
  main : Program Never Model Msg
  main =
--    Html.program
+     Html.program
 -        { init = init
 -        , view = view
 -        , update = update
-+    Testable.Html.program
 +        { init = Testable.init init
 +        , update = Testable.update update
 +        , view = Testable.view view
@@ -218,6 +214,7 @@ index 7ae91ce..a57f979 100644
 -        , div [] [ text (String.join ", " model.suggestions) ]
 +        , div [ class "results" ] [ text (String.join ", " model.suggestions) ]
          ]
+
 ```
 
 And testing it like this:
