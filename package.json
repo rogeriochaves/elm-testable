@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "./check_all.sh"
+    "test": "./check-all.sh"
   },
   "dependencies": {
     "elm": "^0.18.0",
