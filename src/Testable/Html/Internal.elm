@@ -30,6 +30,7 @@ type Selector
 type Query
     = Single (List Selector)
     | Multiple (List Selector)
+    | Children Query Query
 
 
 type alias Options =
@@ -153,6 +154,27 @@ findNodes query node =
 
         Multiple selectors ->
             findNodesForSelectors selectors node
+
+        Children parentQuery childrenQuery ->
+            findNodes parentQuery node
+                |> List.concatMap
+                    (\node ->
+                        getChildren node
+                            |> List.concatMap (findNodes childrenQuery)
+                    )
+
+
+getChildren : Node msg -> List (Node msg)
+getChildren node =
+    case node of
+        Node _ _ children ->
+            children
+
+        KeyedNode _ _ children ->
+            List.map Tuple.second children
+
+        Text _ ->
+            []
 
 
 findNodesForSelectors : List Selector -> Node msg -> List (Node msg)

@@ -1,4 +1,4 @@
-module Testable.TestContext exposing (Component, TestContext, startForTest, update, currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, resolveHttpRequest, advanceTime, assertCalled, find, findAll, trigger, assertText, assertNodeCount, assertPresent)
+module Testable.TestContext exposing (Component, TestContext, startForTest, update, currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, resolveHttpRequest, advanceTime, assertCalled, find, thenFind, findAll, thenFindAll, trigger, assertText, assertNodeCount, assertPresent)
 
 {-| A `TestContext` allows you to manage the lifecycle of an Elm component that
 uses `Testable.Effects`.  Using `TestContext`, you can write tests that exercise
@@ -10,7 +10,7 @@ the entire lifecycle of your component.
 @docs currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, assertCalled
 
 # Html Matchers
-@docs find, findAll, trigger, assertText, assertNodeCount, assertPresent
+@docs find, thenFind, findAll, thenFindAll, trigger, assertText, assertNodeCount, assertPresent
 
 # Simulating Effects
 @docs resolveHttpRequest, advanceTime
@@ -245,11 +245,25 @@ find query (TestContext context) =
     TestContext { context | query = (Html.Single query) }
 
 
+{-| Finds a children node from the current found nodes
+-}
+thenFind : List Html.Selector -> TestContext msg model -> TestContext msg model
+thenFind query (TestContext context) =
+    TestContext { context | query = (Html.Children context.query (Html.Single query)) }
+
+
 {-| Finds all html nodes in the view
 -}
 findAll : List Html.Selector -> TestContext msg model -> TestContext msg model
 findAll query (TestContext context) =
     TestContext { context | query = (Html.Multiple query) }
+
+
+{-| Finds all children node from the current found nodes
+-}
+thenFindAll : List Html.Selector -> TestContext msg model -> TestContext msg model
+thenFindAll query (TestContext context) =
+    TestContext { context | query = (Html.Children context.query (Html.Multiple query)) }
 
 
 findNodesForContext : TestContext msg model -> Result (List String) (List (Html.Node msg))

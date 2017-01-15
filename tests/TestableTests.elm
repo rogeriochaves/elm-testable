@@ -36,7 +36,8 @@ counterComponent =
     , view =
         \model ->
             div []
-                [ button [ Testable.Html.Attributes.id "btn-inc", onClick Inc ] []
+                [ text "Counter: "
+                , button [ Testable.Html.Attributes.id "btn-inc", onClick Inc ] []
                 , div [ Testable.Html.Attributes.class "counter value" ] [ text (toString model) ]
                 ]
     }
@@ -267,4 +268,17 @@ all =
                     |> startForTest
                     |> find [ tag "div" ]
                     |> assertPresent
+        , test "parent query"
+            <| \() ->
+                counterComponent
+                    |> startForTest
+                    |> find [ tag "div" ]
+                    |> assertText (Expect.equal "Counter: 0")
+        , test "children query"
+            <| \() ->
+                counterComponent
+                    |> startForTest
+                    |> find [ tag "div" ]
+                    |> thenFind [ tag "div" ]
+                    |> assertText (Expect.equal "0")
         ]
