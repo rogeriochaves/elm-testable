@@ -1,4 +1,4 @@
-module Main exposing (..)
+port module WebSockets exposing (..)
 
 --- From example 7 of the Elm Architecture Tutorial https://github.com/evancz/elm-architecture-tutorial/blob/master/examples/07-websockets.elm
 

@@ -2,7 +2,7 @@ port module Spelling exposing (..)
 
 -- From Elm Guide on JavaScript and Ports http://guide.elm-lang.org/interop/javascript.html
 
-import Testable.Html exposing (..)
+import Testable.Html as Html exposing (..)
 import Testable.Html.Events exposing (..)
 import Testable.Html.Attributes exposing (..)
 import String
@@ -12,7 +12,7 @@ import Testable
 
 main : Program Never Model Msg
 main =
-    Testable.Html.program
+    Html.program
         { init = Testable.init init
         , update = Testable.update update
         , view = Testable.view view

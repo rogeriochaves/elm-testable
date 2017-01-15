@@ -1,4 +1,4 @@
-module Main exposing (..)
+module RandomGif exposing (..)
 
 --- From example 5 of the Elm Architecture Tutorial https://github.com/evancz/elm-architecture-tutorial/blob/master/examples/05-http.elm
 
