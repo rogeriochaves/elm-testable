@@ -24,7 +24,7 @@ Here is the diff of converting `RandomGif.elm` into a testable component:
 
 ```diff
 diff --git a/examples/RandomGif.elm b/examples/RandomGif.elm
-index 8f7d14b..d8e1db5 100644
+index 8f7d14b..1ae0750 100644
 --- a/examples/RandomGif.elm
 +++ b/examples/RandomGif.elm
 @@ -1,20 +1,22 @@
@@ -33,10 +33,13 @@ index 8f7d14b..d8e1db5 100644
 
  --- From example 5 of the Elm Architecture Tutorial https://github.com/evancz/elm-architecture-tutorial/blob/master/examples/05-http.elm
 
- import Html exposing (..)
- import Html.Attributes exposing (..)
- import Html.Events exposing (..)
+-import Html exposing (..)
+-import Html.Attributes exposing (..)
+-import Html.Events exposing (..)
 -import Http
++import Testable.Html exposing (..)
++import Testable.Html.Attributes exposing (..)
++import Testable.Html.Events exposing (..)
 +import Testable.Http as Http
  import Json.Decode as Decode
 +import Testable
@@ -45,11 +48,13 @@ index 8f7d14b..d8e1db5 100644
 
  main : Program Never Model Msg
  main =
-     Html.program
+-    Html.program
 -        { init = init "cats"
-+        { init = Testable.init (init "cats")
-         , view = view
+-        , view = view
 -        , update = update
++    Testable.Html.program
++        { init = Testable.init (init "cats")
++        , view = Testable.view view
 +        , update = Testable.update update
          , subscriptions = subscriptions
          }
@@ -93,6 +98,7 @@ index 8f7d14b..d8e1db5 100644
  getRandomGif topic =
      let
          url =
+
 ```
 
 
@@ -101,41 +107,34 @@ index 8f7d14b..d8e1db5 100644
 Here is an example of the types of tests you can write for testable components:
 
 ```elm
-import ElmTest exposing (..)
-import Testable.TestContext exposing (..)
-import Testable.Effects as Effects
-import Testable.Http as Http
-
-
-myComponent =
-    { init = MyComponent.init
-    , update = MyComponent.update
-    }
-
-
 all : Test
 all =
-    suite "MyComponent"
-        [ myComponent
-            |> startForTest
-            |> currentModel
-            |> assertEqual (Ok expectedModelValue)
-            |> test "sets initial state"
-        , myComponent
-            |> startForTest
-            |> assertHttpRequest (Http.getRequest "https://example.com/myResource")
-            |> test "makes initial HTTP request"
-        , myComponent
-            |> startForTest
-            |> resolveHttpRequest (Http.getRequest "https://example.com/myResource")
-                (Http.ok """{"data":"example JSON response"}""")
-            |> assertEqual (Ok expectedModelValue)
-            |> test "updated the model on HTTP success"
-        , myComponent
-            |> startForTest
-            |> update (MyComponent.LoadDetails 1234)
-            |> assertHttpRequest (Http.getRequest "https://example.com/myResource/1234")
-            |> test "pressing the button makes a new HTTP request"
+    describe "RandomGif"
+        [ test "sets initial topic"
+            <| \() ->
+                catsComponent
+                    |> startForTest
+                    |> find [ tag "h2" ]
+                    |> assertText (Expect.equal "cats")
+        , test "sets initial loading image"
+            <| \() ->
+                catsComponent
+                    |> startForTest
+                    |> assertShownImage "waiting.gif"
+        , test "makes initial API request"
+            <| \() ->
+                catsComponent
+                    |> startForTest
+                    |> assertHttpRequest (Http.getRequest "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cats")
+        , test "pressing the button makes a new API request"
+            <| \() ->
+                catsComponent
+                    |> startForTest
+                    |> resolveHttpRequest (Http.getRequest "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cats")
+                        (Http.ok """{"data":{"image_url":"http://giphy.com/cat2000.gif"}}""")
+                    |> find [ tag "button" ]
+                    |> trigger "click" "{}"
+                    |> assertHttpRequest (Http.getRequest "https://api.giphy.com/v1/gifs/random?api_key=dc6zaTOxFJmzC&tag=cats")
         ]
 ```
 
@@ -147,12 +146,19 @@ You can also test that an outgoing port was called, by wrapping your ports with 
 
 ```diff
 diff --git a/examples/Spelling.elm b/examples/Spelling.elm
-index e999eeb..e1ebbb5 100644
+index 7ae91ce..a57f979 100644
 --- a/examples/Spelling.elm
 +++ b/examples/Spelling.elm
-@@ -5,14 +5,16 @@ port module Spelling exposing (..)
- import Html exposing (..)
- import Html.Events exposing (..)
+@@ -2,18 +2,20 @@ port module Spelling exposing (..)
+
+ -- From Elm Guide on JavaScript and Ports http://guide.elm-lang.org/interop/javascript.html
+
+-import Html exposing (..)
+-import Html.Attributes exposing (..)
+-import Html.Events exposing (..)
++import Testable.Html exposing (..)
++import Testable.Html.Events exposing (..)
++import Testable.Html.Attributes exposing (..)
  import String
 +import Testable.Cmd
 +import Testable
@@ -160,16 +166,18 @@ index e999eeb..e1ebbb5 100644
 
  main : Program Never Model Msg
  main =
-     Html.program
+-    Html.program
 -        { init = init
+-        , view = view
+-        , update = update
++    Testable.Html.program
 +        { init = Testable.init init
 +        , update = Testable.update update
-         , view = view
--        , update = update
++        , view = Testable.view view
          , subscriptions = subscriptions
          }
 
-@@ -27,9 +29,9 @@ type alias Model =
+@@ -28,9 +30,9 @@ type alias Model =
      }
 
 
@@ -181,16 +189,14 @@ index e999eeb..e1ebbb5 100644
 
 
 
-@@ -45,17 +47,17 @@ type Msg
+@@ -46,17 +48,17 @@ type Msg
  port check : String -> Cmd msg
 
 
 -update : Msg -> Model -> ( Model, Cmd Msg )
--update msg model =
--    case msg of
 +update : Msg -> Model -> ( Model, Testable.Cmd.Cmd Msg )
-+update msg model =
-+    case msg of
+ update msg model =
+     case msg of
          Change newWord ->
 -            ( Model newWord [], Cmd.none )
 +            ( Model newWord [], Testable.Cmd.none )
@@ -202,35 +208,39 @@ index e999eeb..e1ebbb5 100644
          Suggest newSuggestions ->
 -            ( Model model.word newSuggestions, Cmd.none )
 +            ( Model model.word newSuggestions, Testable.Cmd.none )
+
+
+
+@@ -80,5 +82,5 @@ view model =
+     div []
+         [ input [ onInput Change ] []
+         , button [ onClick Check ] [ text "Check" ]
+-        , div [] [ text (String.join ", " model.suggestions) ]
++        , div [ class "results" ] [ text (String.join ", " model.suggestions) ]
+         ]
 ```
 
 And testing it like this:
 
 ```elm
-module SpellingTests exposing (..)
-
-import ElmTest exposing (..)
-import Testable.TestContext exposing (..)
-import Spelling
-
-
-spellingComponent : Testable.TestContext.Component Spelling.Msg Spelling.Model
-spellingComponent =
-    { init = Spelling.init
-    , update = Spelling.update
-    }
-
-
-all : Test
-all =
-    suite "Spelling"
-        [ spellingComponent
-            |> startForTest
-            |> update (Spelling.Change "cats")
-            |> update Spelling.Check
-            |> assertCalled (Spelling.check "cats")
-            |> test "call suggestions check port when requested"
-        ]
+describe "Spelling"
+    [ test "calls suggestions check port when some suggestion is send"
+        <| \() ->
+            spellingComponent
+                |> startForTest
+                |> find [ tag "input" ]
+                |> trigger "input" "{\"target\": {\"value\": \"cats\"}}"
+                |> find [ tag "button" ]
+                |> trigger "click" "{}"
+                |> assertCalled (Spelling.check "cats")
+    , test "renders received suggestions"
+        <| \() ->
+            spellingComponent
+                |> startForTest
+                |> update (Spelling.Suggest [ "dogs", "cats" ])
+                |> find [ class "results" ]
+                |> assertText (Expect.equal "dogs, cats")
+    ]
 ```
 
 Here are [complete tests for the Spelling example](https://github.com/rogeriochaves/elm-testable/blob/master/examples/tests/SpellingTests.elm).
@@ -239,7 +249,7 @@ There is also an example for [testing WebSockets](https://github.com/rogeriochav
 
 ## Example integration with `Main`
 
-To convert your testable `view` and `update` functions into functions that work with `Html.program`, use the `Testable` module:
+To convert your testable `init`, `update` and `view` functions into functions that work with `Html.program`, use the `Testable` module:
 
 ```elm
 main : Program Never Model Msg
@@ -247,7 +257,7 @@ main =
     Html.program
         { init = Testable.init MyComponent.init
         , update = Testable.update MyComponent.update
-        , view = MyComponent.view
+        , view = Testable.view MyComponent.view
         , subscriptions = MyComponent.subscriptions
         }
 ```
