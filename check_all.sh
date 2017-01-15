@@ -2,8 +2,6 @@
 
 set -ex
 
-[ ! -d node_modules ] && npm install
-PATH=$PATH:$(pwd)/node_modules/.bin
 elm package install --yes
 
 rm -Rf elm-stuff/build-artifacts
