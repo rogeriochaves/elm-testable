@@ -3,22 +3,20 @@
 This is a fork from [avh4's elm-testable](https://github.com/avh4/elm-testable), which is getting rewritten in
 Native code. This fork will keep being elm only.
 
-There are still some pending functionalities, like spawning tasks, http.progress, effect managers and so on.
-
-Also, the Http API is not fully compatible with the original one, as you cannot pass Expect, only the Decoder for the request function.
+This fork was upgraded to Elm 0.18 and has exciting new features, like testing your Html, querying, triggering events and so on.
 
 [![Build Status](https://snap-ci.com/rogeriochaves/elm-testable/branch/master/build_image)](https://snap-ci.com/rogeriochaves/elm-testable/branch/master)
 
 # rogeriochaves/elm-testable
 
 This package allows you to write components that follow the Elm Architecture in a way that is testable.
-To allow this, elm-testable provides testable versions of the `Task`, `Effects`, `Http` and `Process` modules,
+To allow this, elm-testable provides testable versions of the `Html`, `Task`, `Effects`, `Http` and `Process` modules,
 as well as `Testable.TestContext` to test testable components and `Testable` to integrate testable components with your Elm app.
 
 
 ## Example testable component
 
-The only difference between a testable component and a standard component is the added `Testable.` in several imports.  (With the exception of `Cmd`, which conflicts with the default import of `Platform.Cmd`)
+The only difference between a testable component and a standard component is the added `Testable.` in several imports. (With the exception of `Cmd`, which conflicts with the default import of `Platform.Cmd`)
 
 Here is the diff of converting `RandomGif.elm` into a testable component:
 
@@ -258,3 +256,11 @@ main =
         , subscriptions = MyComponent.subscriptions
         }
 ```
+
+## TODO
+
+There are still some pending functionalities, like spawning tasks, http.progress, effect managers and so on.
+
+The Http API is not fully compatible with the original one, as you cannot pass Expect, only the Decoder for the request function, but it shouldn't be a problem unless you are doing some advanced stuff.
+
+Also, the Html Selectors probably have some missing cases, like select a child in a specific position. If you need some Selector that is not there yet, please open an issue or send a PR.
