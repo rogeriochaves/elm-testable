@@ -25,8 +25,8 @@ all : Test
 all =
     describe "Testable.EffectsLog"
         [ describe "resulting msgs"
-            [ test "directly consuming the result" <|
-                \() ->
+            [ test "directly consuming the result"
+                <| \() ->
                     EffectsLog.empty
                         |> EffectsLog.insert
                             (Http.getString "https://example.com/"
@@ -37,8 +37,8 @@ all =
                         |> httpGetMsg "https://example.com/" "responseBody"
                         |> Maybe.map Tuple.second
                         |> Expect.equal (Just [ Ok "responseBody" ])
-            , test "mapping the result" <|
-                \() ->
+            , test "mapping the result"
+                <| \() ->
                     EffectsLog.empty
                         |> EffectsLog.insert
                             (Http.getString "https://example.com/"
@@ -49,8 +49,8 @@ all =
                         |> httpGetMsg "https://example.com/" "responseBody"
                         |> Maybe.map Tuple.second
                         |> Expect.equal (Just [ MyWrapper <| Ok "responseBody" ])
-            , test "resolving a request that doesn't match gives Nothing" <|
-                \() ->
+            , test "resolving a request that doesn't match gives Nothing"
+                <| \() ->
                     EffectsLog.empty
                         |> EffectsLog.insert
                             (Http.getString "https://example.com/"
@@ -61,22 +61,22 @@ all =
                         |> httpGetMsg "https://XXXX/" "responseBody"
                         |> Maybe.map Tuple.second
                         |> Expect.equal Nothing
-            , test "resolving a non-Http effect gives Nothing" <|
-                \() ->
+            , test "resolving a non-Http effect gives Nothing"
+                <| \() ->
                     EffectsLog.empty
                         |> EffectsLog.insert (Testable.Cmd.none |> Testable.Cmd.map MyWrapper)
                         |> Tuple.first
                         |> httpGetMsg "https://example.com/" "responseBody"
                         |> Maybe.map Tuple.second
                         |> Expect.equal Nothing
-            , test "inserting a port inserts the port cmd" <|
-                \() ->
+            , test "inserting a port inserts the port cmd"
+                <| \() ->
                     EffectsLog.insert (Testable.Cmd.wrap <| myPort "foo") EffectsLog.empty
                         |> Tuple.first
                         |> wrappedCmds
                         |> Expect.equal [ myPort "foo" ]
-            , test "does not treat ports with different values as equal" <|
-                \() ->
+            , test "does not treat ports with different values as equal"
+                <| \() ->
                     EffectsLog.insert (Testable.Cmd.wrap <| myPort "foo") EffectsLog.empty
                         |> Tuple.first
                         |> wrappedCmds

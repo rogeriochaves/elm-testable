@@ -1,4 +1,4 @@
-module Testable exposing (cmd, task, init, update)
+module Testable exposing (cmd, task, init, update, view)
 
 {-|
 
@@ -8,16 +8,19 @@ This module converts Testable things into real things.
 @docs cmd, task
 
 # StartApp helpers
-@docs init, update
+@docs init, update, view
 
 -}
 
 import Http
 import Process
 import Task
+import Html
 import Testable.Cmd
 import Testable.Internal as Internal
 import Testable.Task
+import Testable.Html
+import Testable.Html.Internal
 
 
 {-| Converts a `Testable.Cmd` into a `Cmd`
@@ -104,3 +107,11 @@ update : (msg -> model -> ( model, Testable.Cmd.Cmd msg )) -> (msg -> model -> (
 update fn msg model =
     fn msg model
         |> init
+
+
+{-| Converts a testable Html into a standard Html function
+-}
+view : (model -> Testable.Html.Html msg) -> model -> Html.Html msg
+view fn model =
+    fn model
+        |> Testable.Html.Internal.toPlatformHtml

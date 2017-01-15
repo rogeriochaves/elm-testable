@@ -2,8 +2,9 @@ port module Spelling exposing (..)
 
 -- From Elm Guide on JavaScript and Ports http://guide.elm-lang.org/interop/javascript.html
 
-import Html exposing (..)
-import Html.Events exposing (..)
+import Testable.Html exposing (..)
+import Testable.Html.Events exposing (..)
+import Testable.Html.Attributes exposing (..)
 import String
 import Testable.Cmd
 import Testable
@@ -11,10 +12,10 @@ import Testable
 
 main : Program Never Model Msg
 main =
-    Html.program
+    Testable.Html.program
         { init = Testable.init init
         , update = Testable.update update
-        , view = view
+        , view = Testable.view view
         , subscriptions = subscriptions
         }
 
@@ -81,5 +82,5 @@ view model =
     div []
         [ input [ onInput Change ] []
         , button [ onClick Check ] [ text "Check" ]
-        , div [] [ text (String.join ", " model.suggestions) ]
+        , div [ class "results" ] [ text (String.join ", " model.suggestions) ]
         ]

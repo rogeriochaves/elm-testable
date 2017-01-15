@@ -8,7 +8,7 @@ import WebSocketsTests
 
 all : Test
 all =
-    describe "avh4/elm-testable examples"
+    describe "elm-testable examples"
         [ RandomGifTests.all
         , SpellingTests.all
         , WebSocketsTests.all

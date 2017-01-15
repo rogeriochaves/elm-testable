@@ -2,9 +2,9 @@ module RandomGif exposing (..)
 
 --- From example 5 of the Elm Architecture Tutorial https://github.com/evancz/elm-architecture-tutorial/blob/master/examples/05-http.elm
 
-import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
+import Testable.Html exposing (..)
+import Testable.Html.Attributes exposing (..)
+import Testable.Html.Events exposing (..)
 import Testable.Http as Http
 import Json.Decode as Decode
 import Testable
@@ -13,9 +13,9 @@ import Testable.Cmd
 
 main : Program Never Model Msg
 main =
-    Html.program
+    Testable.Html.program
         { init = Testable.init (init "cats")
-        , view = view
+        , view = Testable.view view
         , update = Testable.update update
         , subscriptions = subscriptions
         }
