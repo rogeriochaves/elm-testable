@@ -9,7 +9,7 @@ import Testable.Html exposing (..)
 import Testable.Html.Events exposing (..)
 import Testable.Html.Attributes
 import Test exposing (..)
-import Testable.Html.Selector exposing (..)
+import Testable.Html.Selectors exposing (..)
 import Testable.Task as Task
 import Testable.Process as Process
 import Platform.Cmd

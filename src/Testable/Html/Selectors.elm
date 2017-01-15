@@ -1,4 +1,4 @@
-module Testable.Html.Selector exposing (tag, attribute, id, class)
+module Testable.Html.Selectors exposing (tag, attribute, id, class)
 
 {-|
 A selector is used to find html nodes when testing
