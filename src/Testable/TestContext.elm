@@ -1,4 +1,4 @@
-module Testable.TestContext exposing (Component, TestContext, startForTest, update, currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, resolveHttpRequest, advanceTime, assertCalled, find, findAll, trigger, assertText, assertNodeCount)
+module Testable.TestContext exposing (Component, TestContext, startForTest, update, currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, resolveHttpRequest, advanceTime, assertCalled, find, findAll, trigger, assertText, assertNodeCount, assertPresent)
 
 {-| A `TestContext` allows you to manage the lifecycle of an Elm component that
 uses `Testable.Effects`.  Using `TestContext`, you can write tests that exercise
@@ -10,7 +10,7 @@ the entire lifecycle of your component.
 @docs currentModel, assertCurrentModel, assertHttpRequest, assertNoPendingHttpRequests, assertCalled
 
 # Html Matchers
-@docs find, findAll, trigger, assertText, assertNodeCount
+@docs find, findAll, trigger, assertText, assertNodeCount, assertPresent
 
 # Simulating Effects
 @docs resolveHttpRequest, advanceTime
@@ -300,6 +300,13 @@ assertNodeCount expectation (TestContext context) =
             nodesFound
                 |> List.length
                 |> expectation
+
+
+{-| Assert that some node was found with the specified query
+-}
+assertPresent : TestContext msg model -> Expectation
+assertPresent =
+    assertNodeCount (Expect.equal 1)
 
 
 {-| Trigger node events
