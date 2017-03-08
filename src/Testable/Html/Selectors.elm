@@ -7,7 +7,7 @@ A selector is used to find html nodes when testing
 @docs tag, attribute, id, class
 -}
 
-import Testable.Html.Internal exposing (Selector(..))
+import Testable.Html.Types exposing (Selector(..))
 
 
 {-| Find elements by tag name

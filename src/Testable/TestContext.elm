@@ -21,7 +21,8 @@ import String
 import Testable.Cmd
 import Testable.EffectsLog as EffectsLog exposing (EffectsLog, containsCmd)
 import Testable.Http as Http
-import Testable.Html.Internal as Html
+import Testable.Html.Types as Html
+import Testable.Html.Internal as HtmlInternal
 import Time exposing (Time)
 import Platform.Cmd
 
@@ -274,7 +275,7 @@ findNodesForContext (TestContext context) =
 
         Ok { model } ->
             context.component.view model
-                |> Html.findNodes context.query
+                |> HtmlInternal.findNodes context.query
                 |> Ok
 
 
@@ -294,7 +295,7 @@ assertText expectation (TestContext context) =
                 Expect.fail <| "Could not find any element with the query " ++ toString context.query
             else
                 nodesFound
-                    |> List.map (Html.nodeText)
+                    |> List.map (HtmlInternal.nodeText)
                     |> String.join ""
                     |> expectation
 
@@ -333,7 +334,7 @@ assertAttribute attributeName expectation (TestContext context) =
             else
                 case List.head nodesFound of
                     Just node ->
-                        case Html.attributeValueByName attributeName node of
+                        case HtmlInternal.attributeValueByName attributeName node of
                             Ok value ->
                                 expectation value
 
@@ -368,7 +369,7 @@ trigger name event (TestContext context) =
             else
                 case List.head nodesFound of
                     Just node ->
-                        case (Html.triggerEvent node name event) of
+                        case (HtmlInternal.triggerEvent node name event) of
                             Ok msg ->
                                 update msg (TestContext context)
 

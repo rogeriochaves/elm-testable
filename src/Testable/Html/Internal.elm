@@ -4,39 +4,9 @@ import Html as PlatformHtml
 import Html.Events as PlatformEvents
 import Html.Attributes as PlatformAttributes
 import Html.Keyed as PlatformKeyed
+import Testable.Html.Types exposing (Node(..), Attribute(..), Selector(..), Query(..))
 import Json.Decode as Json
 import Json.Encode
-
-
-type Node msg
-    = Node String (List (Attribute msg)) (List (Node msg))
-    | KeyedNode String (List (Attribute msg)) (List ( String, Node msg ))
-    | Text String
-
-
-type Attribute msg
-    = Property String Json.Encode.Value
-    | Style (List ( String, String ))
-    | On String (Json.Decoder msg)
-    | OnWithOptions String Options (Json.Decoder msg)
-
-
-type Selector
-    = Tag String
-    | Attribute String String
-    | Class String
-
-
-type Query
-    = Single (List Selector)
-    | Multiple (List Selector)
-    | Children Query Query
-
-
-type alias Options =
-    { stopPropagation : Bool
-    , preventDefault : Bool
-    }
 
 
 toPlatformHtml : Node msg -> PlatformHtml.Html msg

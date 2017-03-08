@@ -172,7 +172,7 @@ expect to use frequently will be closer to the top.
 
 -}
 
-import Testable.Html.Internal exposing (Node(..))
+import Testable.Html.Types exposing (Node(..))
 import Testable.Html.Attributes
 import Html as PlatformHtml
 
@@ -195,7 +195,7 @@ type alias Html msg =
 [`Html.Attributes`](Html-Attributes) module.
 -}
 type alias Attribute msg =
-    Testable.Html.Internal.Attribute msg
+    Testable.Html.Types.Attribute msg
 
 
 

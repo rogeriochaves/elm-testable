@@ -16,7 +16,8 @@
         "Testable.Html.Attributes",
         "Testable.Html.Events",
         "Testable.Html.Keyed",
-        "Testable.Html.Selectors"
+        "Testable.Html.Selectors",
+        "Testable.Html.Types"
     ],
     "dependencies": {
         "elm-community/elm-test": "3.1.0 <= v < 4.0.0",

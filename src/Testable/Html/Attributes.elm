@@ -169,7 +169,7 @@ Attributes that can be attached to any HTML tag but are less commonly used.
 
 import Json.Encode as Json
 import Json.Decode
-import Testable.Html.Internal exposing (Attribute(..))
+import Testable.Html.Types exposing (Attribute(..))
 
 
 -- This library does not include low, high, or optimum because the idea of a

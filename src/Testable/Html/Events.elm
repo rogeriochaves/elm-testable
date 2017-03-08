@@ -48,7 +48,7 @@ of events as seen in the [TodoMVC][] example.
 @docs targetValue, targetChecked, keyCode
 -}
 
-import Testable.Html.Internal exposing (Attribute(..))
+import Testable.Html.Types exposing (Attribute(..))
 import Json.Decode as Json
 
 
@@ -202,7 +202,7 @@ to the event is prevented. For example, this is used with touch events when you
 want to treat them as gestures of your own, not as scrolls.
 -}
 type alias Options =
-    Testable.Html.Internal.Options
+    Testable.Html.Types.Options
 
 
 {-| Everything is `False` by default.

@@ -23,7 +23,7 @@ efficiently.
 @docs ol, ul
 -}
 
-import Testable.Html.Internal exposing (Attribute(..), Node(..))
+import Testable.Html.Types exposing (Node(..), Attribute(..))
 
 
 {-| Works just like `Html.node`, but you add a unique identifier to each child
