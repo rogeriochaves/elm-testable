@@ -11,6 +11,7 @@
         "Testable.TestContext",
         "Testable.Cmd",
         "Testable.Http",
+        "Testable.Process",
         "Testable.Task",
         "Testable.Html",
         "Testable.Html.Attributes",
