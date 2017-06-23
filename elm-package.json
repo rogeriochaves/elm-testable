@@ -1,5 +1,5 @@
 {
-    "version": "4.0.0",
+    "version": "4.1.0",
     "summary": "Makes Tasks and Effects testable",
     "repository": "https://github.com/rogeriochaves/elm-testable.git",
     "license": "BSD3",
