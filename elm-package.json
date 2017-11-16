@@ -1,7 +1,7 @@
 {
     "version": "4.1.0",
     "summary": "Makes Tasks and Effects testable",
-    "repository": "https://github.com/rogeriochaves/elm-testable.git",
+    "repository": "https://github.com/brtnik/elm-testable.git",
     "license": "BSD3",
     "source-directories": [
         "src"
@@ -21,7 +21,7 @@
         "Testable.Html.Types"
     ],
     "dependencies": {
-        "elm-community/elm-test": "3.1.0 <= v < 4.0.0",
+        "elm-community/elm-test": "4.2.0 <= v < 5.0.0",
         "elm-lang/core": "5.0.0 <= v < 6.0.0",
         "elm-lang/html": "2.0.0 <= v < 3.0.0",
         "elm-lang/http": "1.0.0 <= v < 2.0.0"
