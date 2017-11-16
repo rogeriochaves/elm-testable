@@ -1,10 +1,10 @@
 module SpellingTests exposing (..)
 
-import Test exposing (..)
-import Testable.TestContext exposing (..)
-import Testable.Html.Selectors exposing (..)
-import Spelling
 import Expect
+import Spelling
+import Test exposing (..)
+import Testable.Html.Selectors exposing (..)
+import Testable.TestContext exposing (..)
 
 
 spellingComponent : Testable.TestContext.Component Spelling.Msg Spelling.Model
@@ -18,8 +18,8 @@ spellingComponent =
 all : Test
 all =
     describe "Spelling"
-        [ test "calls suggestions check port when some suggestion is send"
-            <| \() ->
+        [ test "calls suggestions check port when some suggestion is send" <|
+            \() ->
                 spellingComponent
                     |> startForTest
                     |> find [ tag "input" ]
@@ -27,8 +27,8 @@ all =
                     |> find [ tag "button" ]
                     |> trigger "click" "{}"
                     |> assertCalled (Spelling.check "cats")
-        , test "renders received suggestions"
-            <| \() ->
+        , test "renders received suggestions" <|
+            \() ->
                 spellingComponent
                     |> startForTest
                     |> update (Spelling.Suggest [ "dogs", "cats" ])

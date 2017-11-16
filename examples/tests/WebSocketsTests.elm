@@ -1,11 +1,11 @@
 module WebSocketsTests exposing (..)
 
-import Test exposing (..)
-import Testable.TestContext exposing (..)
-import Testable.Html.Selectors exposing (..)
-import WebSockets
-import WebSocket
 import Expect
+import Test exposing (..)
+import Testable.Html.Selectors exposing (..)
+import Testable.TestContext exposing (..)
+import WebSocket
+import WebSockets
 
 
 webSocketsComponent : Testable.TestContext.Component WebSockets.Msg WebSockets.Model
@@ -19,8 +19,8 @@ webSocketsComponent =
 all : Test
 all =
     describe "WebSockets"
-        [ test "sends inputed message through websocket"
-            <| \() ->
+        [ test "sends inputed message through websocket" <|
+            \() ->
                 webSocketsComponent
                     |> startForTest
                     |> find [ tag "input" ]
@@ -28,8 +28,8 @@ all =
                     |> find [ tag "button" ]
                     |> trigger "click" "{}"
                     |> assertCalled (WebSocket.send WebSockets.echoServer "dogs")
-        , test "writes values comming from the websocket to the screen in the right order"
-            <| \() ->
+        , test "writes values comming from the websocket to the screen in the right order" <|
+            \() ->
                 webSocketsComponent
                     |> startForTest
                     |> update (WebSockets.NewMessage "foo")
